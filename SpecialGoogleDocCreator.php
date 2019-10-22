@@ -1,8 +1,8 @@
 <?php
 
 /**
- * 
- * 
+ *
+ *
  */
 class SpecialGoogleDocCreator extends SpecialPage {
 	public function __construct() {
@@ -44,12 +44,12 @@ class SpecialGoogleDocCreator extends SpecialPage {
 				$formOpts = [
 					'id' => 'get_auth_code',
 					'method' => 'post',
-					'action' => $this->getTitle()->getFullUrl()
+					'action' => SpecialPage::getTitleFor('GoogleDocCreator')->getFullUrl()
 				];
 				$out->addHTML(
 					Html::openElement( 'form', $formOpts ) . "<br>" .
-					Html::label( 'Enter Auth Code',"", array( "for" => "auth_code" ) ) . "<br><br>" . 
-					Html::element( 'input', array( "id" => "auth_code", "name" => "auth_code", "type" => "text" ) ) . 
+					Html::label( 'Enter Auth Code',"", array( "for" => "auth_code" ) ) . "<br><br>" .
+					Html::element( 'input', array( "id" => "auth_code", "name" => "auth_code", "type" => "text" ) ) .
 					Html::element( 'a', array( "href" => $authUrl, "target" => "_blank" ), " Click to get Auth Code" ) . "<br><br>"
 				);
 				$out->addHTML(
@@ -83,12 +83,12 @@ class SpecialGoogleDocCreator extends SpecialPage {
 			$formOpts = [
 				'id' => 'get_wikipage_name',
 				'method' => 'post',
-				'action' => $this->getTitle()->getFullUrl()
+				'action' => SpecialPage::getTitleFor('GoogleDocCreator')->getFullUrl()
 			];
 			$out->addHTML(
 				Html::openElement( 'form', $formOpts ) . "<br>" .
-				Html::label( 'Enter Wiki Page Title',"", array( "for" => "wikipage_name" ) ) . "<br><br>" . 
-				Html::element( 'input', array( "id" => "wikipage_name", "name" => "wikipage_name", "type" => "text" ) ) . "<br><br>"
+				Html::label( 'Enter Wiki Page Title',"", array( "for" => "wikipage_name" ) ) . "<br><br>" .
+				Html::element( 'input', array( "id" => "wikipage_name", "name" => "wikipage_name", "type" => "text", "value" => $par ? $par : '' ) ) . "<br><br>"
 			);
 			$out->addHTML(
 				Html::submitButton( "Submit", array() ) .
@@ -119,5 +119,27 @@ class SpecialGoogleDocCreator extends SpecialPage {
 		$content = new WikitextContent( '<gdoc id="' . $fileId . '" />' );
 		$article->doEditContent( $content , "auto created by GoogleDocCreator");
 		$out->addHTML( "Page Created Successfully: " . Linker::linkKnown( Title::newFromText( $wikipage_name ), $wikipage_name, array('target' => '_blank') ) );
+	}
+
+	public static function setParserHook( $parser ) {
+		$parser->setHook( 'gdoccreate', 'SpecialGoogleDocCreator::createDoc' );
+	}
+
+	public static function createDoc( $input, array $args, Parser $parser, PPFrame $frame ) {
+
+		$title = $input;
+		$text = $input;
+		if( array_key_exists('text', $args ) ) {
+			$text = $args['text'];
+		}
+
+		return Html::rawElement(
+			'a',
+			[
+				'class' => 'gdoc-create-link',
+				'href' => SpecialPage::getTitleFor('GoogleDocCreator')->getFullURL().'/'.$input
+			],
+			$text
+		);
 	}
 }

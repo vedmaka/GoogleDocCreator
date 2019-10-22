@@ -22,5 +22,8 @@
 	"config": {
 		"GoogleApiClientCredentialsPath": null
 	},
+	"Hooks": {
+		"ParserFirstCallInit": "SpecialGoogleDocCreator::setParserHook"
+	},
 	"manifest_version": 1
 }
